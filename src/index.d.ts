@@ -23,3 +23,9 @@ interface ConcertEvent {
   latitude: number;
   longitude: number;
 }
+
+interface GeoPoint {
+  latitude: number;
+  longitude: number;
+  radius: number;
+}

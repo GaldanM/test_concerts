@@ -2,12 +2,16 @@ import type { Request, Response } from "express";
 
 import formatConcertEvent from "../formatter/formatConcertEvent";
 
-import searchConcerts from "../usecase/searchConcerts";
+import SearchConcerts from "../usecase/SearchConcerts";
+
+import RepositoryInMemory from "../repository/RepositoryInMemory";
 
 import type { ParsedQs } from "qs";
-import type { SearchAroundGeopointOptions, SearchByBandOptions } from "../usecase/searchConcerts";
+import type { SearchAroundGeopointOptions, SearchByBandOptions } from "../usecase/SearchConcerts";
 
-function concertController(req: Request, res: Response): void {
+const repositoryInMemory = new RepositoryInMemory();
+
+async function concertController(req: Request, res: Response): Promise<void> {
   const searchByBand = Object.prototype.hasOwnProperty.call(req.query, "bandIds");
   const searchAroundGeopoint = ["latitude", "longitude", "radius"].every((param) =>
     Object.prototype.hasOwnProperty.call(req.query, param)
@@ -16,6 +20,7 @@ function concertController(req: Request, res: Response): void {
   if (!searchByBand && !searchAroundGeopoint) {
     res.status(409);
     res.send("You must at least provide `bandIds` OR `latitude`/`longitude`/`radius`");
+    return;
   }
 
   const searchOptions: {
@@ -44,7 +49,8 @@ function concertController(req: Request, res: Response): void {
     };
   }
 
-  const concerts = searchConcerts(searchOptions.byBand, searchOptions.aroundGeopoint);
+  const useCase = new SearchConcerts(repositoryInMemory);
+  const concerts = await useCase.execute(searchOptions.byBand, searchOptions.aroundGeopoint);
 
   res.json(concerts.map(formatConcertEvent));
 }
