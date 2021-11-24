@@ -9,11 +9,11 @@ import venuesRaw from "../../data/venues.json";
 const concerts = concertsRaw as Concert[];
 const venues = venuesRaw as Venue[];
 
-interface SearchByBandOptions {
+export interface SearchByBandOptions {
   bandIds: number[];
 }
 
-interface SearchAroundGeopointOptions {
+export interface SearchAroundGeopointOptions {
   latitude: number;
   longitude: number;
   radius: number;
