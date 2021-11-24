@@ -1,48 +1,49 @@
 import { getDistance } from "geolib";
 
-import concertsRaw from "../../data/concerts.json";
-import venuesRaw from "../../data/venues.json";
 import WrongParametersError from "../errors/WrongParametersError";
 import WrongGeopointParametersError from "../errors/WrongGeopointParametersError";
+
+import concertsRaw from "../../data/concerts.json";
+import venuesRaw from "../../data/venues.json";
 
 const concerts = concertsRaw as Concert[];
 const venues = venuesRaw as Venue[];
 
-interface SearchConcertByBandOptions {
+interface SearchByBandOptions {
   bandIds: number[];
 }
 
-interface SearchConcertAroundGeopointOptions {
+interface SearchAroundGeopointOptions {
   latitude: number;
   longitude: number;
   radius: number;
 }
 
 function searchConcerts(
-  searchByBandOptions: SearchConcertByBandOptions | null,
-  searchAroundGeopointOptions: SearchConcertAroundGeopointOptions | null
+  searchByBandOptions: SearchByBandOptions | null,
+  searchAroundGeopointOptions: SearchAroundGeopointOptions | null
 ): Concert[] {
   if (!searchByBandOptions && !searchAroundGeopointOptions) {
     throw new WrongParametersError();
   }
 
-  if (searchAroundGeopointOptions) {
-    checkGeoPointOptions(searchAroundGeopointOptions);
-    return searchConcertsAroundGeopoint(
-      searchAroundGeopointOptions.latitude,
-      searchAroundGeopointOptions.longitude,
-      searchAroundGeopointOptions.radius
+  let matchingConcerts: Concert[] = concerts;
+
+  if (searchByBandOptions) {
+    matchingConcerts = concerts.filter((concert) =>
+      searchByBandOptions.bandIds.some((bandId) => concert.bandId === bandId)
     );
   }
 
-  if (searchByBandOptions) {
-    return concerts.filter((concert) => searchByBandOptions.bandIds.some((bandId) => concert.bandId === bandId));
+  if (searchAroundGeopointOptions) {
+    checkGeoPointOptions(searchAroundGeopointOptions);
+    return filterConcertsAroundGeopoint(matchingConcerts, searchAroundGeopointOptions);
   }
 
-  return [];
+  return matchingConcerts;
 }
 
-function checkGeoPointOptions(options: SearchConcertAroundGeopointOptions): void {
+function checkGeoPointOptions(options: SearchAroundGeopointOptions): void {
   if (options.latitude < -90 || options.latitude > 90) {
     throw new WrongGeopointParametersError("Latitude range is [-90, 90]");
   }
@@ -56,13 +57,16 @@ function checkGeoPointOptions(options: SearchConcertAroundGeopointOptions): void
   }
 }
 
-function searchConcertsAroundGeopoint(latitude: number, longitude: number, radius: number): Concert[] {
-  const venuesWithingRadius = venues.filter((venue) => {
-    const distance = getDistance({ latitude, longitude }, { latitude: venue.latitude, longitude: venue.longitude });
-    return distance < radius * 1000;
+function filterConcertsAroundGeopoint(concertsToFilter: Concert[], geopoint: SearchAroundGeopointOptions): Concert[] {
+  const venuesWithinRadius = venues.filter((venue) => {
+    const distance = getDistance(
+      { latitude: geopoint.latitude, longitude: geopoint.longitude },
+      { latitude: venue.latitude, longitude: venue.longitude }
+    );
+    return distance < geopoint.radius * 1000;
   });
 
-  return concerts.filter((concert) => venuesWithingRadius.some((venue) => venue.id === concert.venueId));
+  return concertsToFilter.filter((concert) => venuesWithinRadius.some((venue) => venue.id === concert.venueId));
 }
 
 export default searchConcerts;

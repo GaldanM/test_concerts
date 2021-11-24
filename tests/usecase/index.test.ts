@@ -33,4 +33,12 @@ describe("search concerts", () => {
   ])("should send an error on wrong parameters", (aroundOptions) => {
     expect(() => searchConcerts(null, aroundOptions)).toThrow(WrongGeopointParametersError);
   });
+  it("should find concerts with specific bands AND around a geopoint", () => {
+    const concerts = searchConcerts(
+      { bandIds: [1, 2] },
+      { latitude: 43.63967479999999, longitude: -79.3535794, radius: 1 }
+    );
+
+    expect(concerts).toHaveLength(2);
+  });
 });
