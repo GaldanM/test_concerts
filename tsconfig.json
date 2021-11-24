@@ -1,0 +1,23 @@
+{
+	"compilerOptions": {
+		"allowSyntheticDefaultImports": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"inlineSources": true,
+		"lib": ["ESNext"],
+		"module": "CommonJS",
+		"moduleResolution": "node",
+		"noImplicitAny": true,
+		"outDir": "out",
+		"pretty": true,
+		"removeComments": true,
+		"resolveJsonModule": true,
+		"rootDirs": ["./", "src"],
+		"sourceMap": true,
+		"strict": true,
+		"strictNullChecks": true,
+		"target": "esnext",
+		"types": ["jest"]
+	}
+}
+

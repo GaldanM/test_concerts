@@ -1,0 +1,13 @@
+{
+	"collectCoverage": true,
+	"collectCoverageFrom" : ["*.ts", "src/**/*.ts"],
+	"coverageDirectory": "coverage",
+	"coveragePathIgnorePatterns": ["/node_modules/", "/tests/", "!*.d.ts"],
+
+	"moduleFileExtensions": ["js","ts"],
+
+	"preset": "ts-jest",
+
+	"testMatch": ["**/*.test.ts"],
+	"testPathIgnorePatterns": ["/node_modules/"]
+}
