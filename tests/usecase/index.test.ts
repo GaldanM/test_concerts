@@ -9,7 +9,7 @@ describe("search concerts", () => {
     [[1, 2], 26],
     [[0], 0],
   ])("should find concerts with specific bands", (bandIds, expected) => {
-    const concerts = searchConcerts({ bandIds });
+    const concerts = searchConcerts({ bandIds }, null);
 
     expect(concerts).toHaveLength(expected);
   });
@@ -18,25 +18,19 @@ describe("search concerts", () => {
     [{ latitude: 43.63967479999999, longitude: -79.3535794, radius: 2 }, 150],
     [{ latitude: 43.63967479999999, longitude: -79.3535794, radius: 0 }, 0],
     [{ latitude: 0, longitude: 0, radius: 1 }, 0],
-  ])("should find concerts around a geopoint", ({ latitude, longitude, radius }, expected) => {
-    const concerts = searchConcerts({ latitude, longitude, radius });
+  ])("should find concerts around a geopoint", (aroundOptions, expected) => {
+    const concerts = searchConcerts(null, aroundOptions);
 
     expect(concerts).toHaveLength(expected);
   });
-  it.each([
-    {},
-    { latitude: 0, radius: 1 },
-    { longitude: 0, radius: 1 },
-    { latitude: 0, longitude: 0 },
-    { bandIds: [1], latitude: 0, longitude: 0 },
-  ])("should send an error when missing parameters", (parameters) => {
-    expect(() => searchConcerts(parameters)).toThrow(WrongParametersError);
+  it("should send an error when missing parameters", () => {
+    expect(() => searchConcerts(null, null)).toThrow(WrongParametersError);
   });
   it.each([
     { latitude: 100, longitude: 0, radius: 1 },
     { latitude: 0, longitude: 200, radius: 1 },
     { latitude: 0, longitude: 0, radius: -1 },
-  ])("should send an error when missing parameters", (parameters) => {
-    expect(() => searchConcerts(parameters)).toThrow(WrongGeopointParametersError);
+  ])("should send an error on wrong parameters", (aroundOptions) => {
+    expect(() => searchConcerts(null, aroundOptions)).toThrow(WrongGeopointParametersError);
   });
 });
