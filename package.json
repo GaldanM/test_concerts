@@ -6,7 +6,9 @@
   "license": "MIT",
   "private": false,
   "scripts": {
-    "test": "jest"
+		"build": "tsc",
+		"start": "node out/index.js",
+		"test": "jest"
   },
   "devDependencies": {
     "@galdanm/eslint-config-jest": "^1.0.0",

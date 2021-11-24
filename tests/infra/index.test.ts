@@ -13,7 +13,7 @@ describe("search concerts routes", () => {
       { bandIds: [1, 2], latitude: 43.63967479999999, longitude: -79.3535794, radius: 1 },
     ],
   ])("search concerts %s", async (name, parameters) => {
-    const response = await request.get("/concerts").send(parameters);
+    const response = await request.get("/concerts").query(parameters);
     const [firstResult] = response.body;
 
     expect(response.statusCode).toStrictEqual(200);
