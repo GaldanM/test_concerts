@@ -24,13 +24,23 @@ class RepositoryInMemory implements Repository {
       return distance < geopoint.radius * 1000;
     });
 
-    return Promise.resolve(
-      this.concerts.filter((concert) => venuesWithinRadius.some((venue) => venue.id === concert.venueId))
+    const concertsFilteredByVenues = this.concerts.filter((concert) =>
+      venuesWithinRadius.some((venue) => venue.id === concert.venueId)
     );
+
+    const sortedConcerts = sortConcertsByDateDescending(concertsFilteredByVenues);
+
+    return Promise.resolve(sortedConcerts);
   }
 
   async getConcertsByBands(bandIds: number[]): Promise<Concert[]> {
-    return Promise.resolve(this.concerts.filter((concert) => bandIds.some((bandId) => concert.bandId === bandId)));
+    const concertsFilteredByBands = this.concerts.filter((concert) =>
+      bandIds.some((bandId) => concert.bandId === bandId)
+    );
+
+    const sortedConcerts = sortConcertsByDateDescending(concertsFilteredByBands);
+
+    return Promise.resolve(sortedConcerts);
   }
 
   async getConcertsByBandsAndAroundGeopoint(bandIds: number[], geopoint: GeoPoint): Promise<Concert[]> {
@@ -45,10 +55,18 @@ class RepositoryInMemory implements Repository {
       bandIds.some((bandId) => concert.bandId === bandId)
     );
 
-    return Promise.resolve(
-      concertsFilteredByBands.filter((concert) => venuesWithinRadius.some((venue) => venue.id === concert.venueId))
+    const concertsFilteredByVenues = concertsFilteredByBands.filter((concert) =>
+      venuesWithinRadius.some((venue) => venue.id === concert.venueId)
     );
+
+    const sortedConcerts = sortConcertsByDateDescending(concertsFilteredByVenues);
+
+    return Promise.resolve(sortedConcerts);
   }
+}
+
+function sortConcertsByDateDescending(concerts: Concert[]): Concert[] {
+  return concerts.sort((concertA, concertB) => concertB.date - concertA.date);
 }
 
 export default RepositoryInMemory;

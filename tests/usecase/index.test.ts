@@ -10,22 +10,30 @@ describe("search concerts", () => {
     [[2], 21],
     [[1, 2], 26],
     [[0], 0],
-  ])("should find concerts with specific bands", async (bandIds, expected) => {
+  ])("should find concerts with specific bands ordered by date desc", async (bandIds, expected) => {
     const useCase = new SearchConcerts(new RepositoryInMemory());
     const concerts = await useCase.execute({ bandIds }, null);
 
     expect(concerts).toHaveLength(expected);
+
+    if (concerts.length > 0) {
+      expect(concerts[0].date > concerts[1].date).toBe(true);
+    }
   });
   it.each([
     [{ latitude: 43.63967479999999, longitude: -79.3535794, radius: 1 }, 58],
     [{ latitude: 43.63967479999999, longitude: -79.3535794, radius: 2 }, 150],
     [{ latitude: 43.63967479999999, longitude: -79.3535794, radius: 0 }, 0],
     [{ latitude: 0, longitude: 0, radius: 1 }, 0],
-  ])("should find concerts around a geopoint", async (aroundOptions, expected) => {
+  ])("should find concerts around a geopoint ordered by date desc", async (aroundOptions, expected) => {
     const useCase = new SearchConcerts(new RepositoryInMemory());
     const concerts = await useCase.execute(null, aroundOptions);
 
     expect(concerts).toHaveLength(expected);
+
+    if (concerts.length > 0) {
+      expect(concerts[0].date > concerts[1].date).toBe(true);
+    }
   });
   it("should send an error when missing parameters", async () => {
     const useCase = new SearchConcerts(new RepositoryInMemory());
@@ -41,7 +49,7 @@ describe("search concerts", () => {
 
     await expect(useCase.execute(null, aroundOptions)).rejects.toBeInstanceOf(WrongGeopointParametersError);
   });
-  it("should find concerts with specific bands AND around a geopoint", async () => {
+  it("should find concerts with specific bands AND around a geopoint ordered by date desc", async () => {
     const useCase = new SearchConcerts(new RepositoryInMemory());
     const concerts = await useCase.execute(
       { bandIds: [1, 2] },
@@ -49,5 +57,6 @@ describe("search concerts", () => {
     );
 
     expect(concerts).toHaveLength(2);
+    expect(concerts[0].date > concerts[1].date).toBe(true);
   });
 });
